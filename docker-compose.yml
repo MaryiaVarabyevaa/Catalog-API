@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+
+  rmq:
+    image: rabbitmq:3-management
+    container_name: rmq
+    restart: always
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      mynetwork:
+
+  gateway:
+    container_name: gateway-api
+    build:
+      context: .
+      dockerfile: ./apps/gateway/Dockerfile
+    env_file:
+      - ./apps/gateway/.env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - 5000:5000
+    networks:
+      mynetwork:
+
+  auth:
+    container_name: auth
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+    env_file:
+      - ./apps/auth/.env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      mynetwork:
+
+
+networks:
+  mynetwork:
